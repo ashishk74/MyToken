@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My TOKEN</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body style="background-color:powderblue;">
+
+<div class="container-fluid">
+
+  
+    View Total Supply  <br><br>
+
+  <div class="form-row">
+
+      
+	<div class="form-group col-md-2">
+    <button id="button" onclick="viewtsupply()">View Total Supply</button><br>
+    </div>
+	
+	
+	<b><div id="viewtotalsupply" ></div></b>
+	<br>
+  </div>
+
+    View Balance <br><br>
+
+  <div class="form-row">
+
+    <div class="form-group col-md-2">
+    <input  type="text" id="balanceOf_param1" placeholder="Wallet address">
+    </div>
+
+      
+	<div class="form-group col-md-2">
+    <button id="button" onclick="balanceOf()">Check Balance</button><br>
+    </div>
+	
+	
+	<b><div id="viewbalanceof" ></div></b>
+	<br>
+  </div>
+
+  
+    TRANSFER MyToken <br><br>
+
+  <div class="form-row">
+
+    <div class="form-group col-md-2">
+    <input  type="text" id="transfer_param1" placeholder="Transfer To">
+    </div>
+
+    <div class="form-group col-md-2">
+    <input  type="text" id="transfer_param2" placeholder="Amount">
+    </div>
+  	
+      
+	<div class="form-group col-md-2">
+    <button id="button" onclick="transfer()">Transfer</button><br>
+    </div>
+	
+	
+	<b><div id="viewtransfer" ></div></b>
+	<br>
+  </div>
+
+
+	<script type="text/javascript" src="./abi.js"></script>
+    <script type="text/javascript">
+
+    var MyToken;
+    const web3 = new Web3(new Web3.providers.HttpProvider(
+    'https://ropsten.infura.io/v3/1a831534f602458bac682c5a0c797e37'
+    ));
+    
+    $(document).ready(function(){
+      window.addEventListener('load', async () => {
+        // Modern dapp browsers...
+        if (window.ethereum) {
+            window.web3 = new Web3(ethereum);
+            try {
+                // Request account access if needed
+                await ethereum.enable();
+                // Acccounts now exposed
+                web3.eth.sendTransaction({from : web3.eth.defaultAccount});
+            } catch (error) {
+                // User denied account access...
+            }
+        }
+        // Legacy dapp browsers...
+        else if (window.web3) {
+            window.web3 = new Web3(web3.currentProvider);
+            // Acccounts always exposed
+            web3.eth.sendTransaction({from : web3.eth.defaultAccount});
+        }
+        // Non-dapp browsers...
+        else {
+            console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+        }
+      });
+      var accounts = web3.eth.getAccounts();
+      web3.eth.defaultAccount = web3.eth.accounts[0];
+      //web3.eth.defaultAccount = `0xe50938d856B57954D06be1a1525A8141aF40ECD2`
+		  const address = '0x429BfaeC81eB7e282b6cbc28d3aa2baCE04C382A';
+	    MyToken = new web3.eth.Contract(abi, address);
+      });
+
+		
+      async  function viewtsupply(){
+			
+			const result = await MyToken.methods.totalSupply().call()
+			.then (function (result){		
+				$("#viewtotalsupply").html('<b>Total Supply is : </b> :'+ JSON.stringify(result));
+				console.log(result);
+			});
+		}
+	
+        async  function balanceOf(){
+			var p2 = document.getElementById('balanceOf_param1').value;
+			const result = await MyToken.methods.balanceOf(p2).call()
+			.then (function (result){		
+				$("#viewbalanceof").html('<b>MyToken Balance. </b> :'+ JSON.stringify(result));
+				console.log(result);
+			});
+		}
+	
+		async function transfer(){
+        var p1 = document.getElementById('transfer_param1').value;
+        var p2 = document.getElementById('transfer_param2').value;
+        
+		const result = await MyToken.methods.transfer(p1, p2).send({from:web3.eth.defaultAccount, gas:1000000})
+		.then(function (result) {
+		 $("#viewtransfer").html('Transfer sucessful <br>From : ' + (result.events.Transfer.returnValues._from) + '<br> To :    ' + (result.events.Transfer.returnValues._to) + '<br> of MyToken Amount: '+ (result.events.Transfer.returnValues._value));
+		console.log(result);
+        });
+		}
+		
+</script>
+  </body>
+</html>

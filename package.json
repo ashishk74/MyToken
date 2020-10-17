@@ -1,0 +1,19 @@
+{
+  "name": "mytoken",
+  "version": "1.0.0",
+  "description": "IPL Token 2020",
+  "main": "abi.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ashish Kumar",
+  "license": "ISC",
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^1.1.1",
+    "fs": "0.0.1-security",
+    "truffle": "^5.1.49"
+  }
+}
