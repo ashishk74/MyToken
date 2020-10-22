@@ -74,15 +74,17 @@
     <script type="text/javascript">
 
     var MyToken;
+    var wallet_address;
+    var web3js;
     const web3 = new Web3(new Web3.providers.HttpProvider(
     'https://ropsten.infura.io/v3/1a831534f602458bac682c5a0c797e37'
     ));
     
-    $(document).ready(function(){
+    $(document).ready(async () => {
       window.addEventListener('load', async () => {
         // Modern dapp browsers...
         if (window.ethereum) {
-            window.web3 = new Web3(ethereum);
+            web3js = new Web3(ethereum);
             try {
                 // Request account access if needed
                 await ethereum.enable();
@@ -94,7 +96,7 @@
         }
         // Legacy dapp browsers...
         else if (window.web3) {
-            window.web3 = new Web3(web3.currentProvider);
+            web3js = new Web3(web3.currentProvider);
             // Acccounts always exposed
             web3.eth.sendTransaction({from : web3.eth.defaultAccount});
         }
@@ -103,11 +105,14 @@
             console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
         }
       });
-      var accounts = web3.eth.getAccounts();
-      web3.eth.defaultAccount = web3.eth.accounts[0];
-      //web3.eth.defaultAccount = `0xe50938d856B57954D06be1a1525A8141aF40ECD2`
-		  const address = '0x429BfaeC81eB7e282b6cbc28d3aa2baCE04C382A';
-	    MyToken = new web3.eth.Contract(abi, address);
+      web3js.eth.getAccounts(async (err, accounts) => {
+        if(err) console.log('error :::::', err);
+        console.log('accounts :::::', accounts);
+        wallet_address = accounts[0];
+        // web3.eth.defaultAccount = `0xe50938d856B57954D06be1a1525A8141aF40ECD2`
+        const address = '0x429BfaeC81eB7e282b6cbc28d3aa2baCE04C382A';
+        MyToken = new web3.eth.Contract(abi, address);
+        });
       });
 
 		
@@ -132,12 +137,13 @@
 		async function transfer(){
         var p1 = document.getElementById('transfer_param1').value;
         var p2 = document.getElementById('transfer_param2').value;
-        
-		const result = await MyToken.methods.transfer(p1, p2).send({from:web3.eth.defaultAccount, gas:1000000})
+		const result = await MyToken.methods.transfer(p1, p2).send({from:wallet_address, gas:1000000})
 		.then(function (result) {
+      console.log('result :::::', result);
 		 $("#viewtransfer").html('Transfer sucessful <br>From : ' + (result.events.Transfer.returnValues._from) + '<br> To :    ' + (result.events.Transfer.returnValues._to) + '<br> of MyToken Amount: '+ (result.events.Transfer.returnValues._value));
-		console.log(result);
-        });
+        }).catch(err => {
+          console.log('error :::::', err);
+        })
 		}
 		
 </script>
